@@ -1,0 +1,49 @@
+# Java_RideSharing
+Proiect pentru cursul de Programare Avansata pe Obiecte
+
+## Descriere
+Scopul acestui proiect este de a simula structura unui serviciu de Ride-Sharing (ex. Bolt, Uber), si de a implementa cateva dintre functionalitatile 
+cuprinse intr-un astfel de serviciu.
+
+## Etapa 1
+
+### Definirea Sistemului
+Sistemul este constituit din urmatoarele clase:
+
+* Vehicul, clasa abstracta care are urmatoarele subclase, care salveaza detaliile fiecarui mijloc de transport
+  + Masina
+  + Elicopter
+  + Trasura
+  + Motocicleta cu atas
+* User, clasa abstracta care are urmatoarele subclase
+  + Conducator
+  + Calator
+* CardPlata, clasa ce va fi folosita pentru a salva detaliile de plata ale fiecarui calator
+* Cupon - cupoane de reduceri, acordate de asemenea calatorilor pe baza fidelitatii lor
+* Cursa
+
+Functionalitatile implementate sunt:
+1. Create, read pe Useri
+2. Create, read pe Vehicule
+3. Create, read pe (Tipuri de) Cupoane
+4. Create, read pe Carduri bancare
+5. Create, read pe Curse
+6. Acordare cupoane calatorilor pe baza numarului de curse efectuate (cate un cupon random per 3 curse)
+7. Afisarea distantei maxime a calatoriilor pe care le poate face un calator cu fiecare vehicul in functie de soldul cumulat de pe toate cardurile sale
+8. Acordarea unui bonus de 20 ron fiecarui conducator pentru fiecare 5 curse efectuate
+9. Protectia animalelor a interzis abuzul cailor! Stergea tuturor trasurilor cu un singur cal (e pus la prea multa munca)
+10. Taxarea fiecarei curse daca nu au fost deja taxate
+11. Afisarea unor statistici sumare:
+    * Soferul cu cele mai multe curse efectuate
+  	* Calatorul cu cele mai multe curse efectuate
+    
+
+
+### Detalii de implementare
+* Toate campurile sunt private si pot fi accesate si modificate prin metode publice
+* Exista aplicatii ale conceptului de agregare, de exemplu campurile "carduri" si "cupoane" din clasa "Calator", ce folosesc colectii de obiecte.
+* Exista o colectie sortata: in clasa "Administrativ", a cupoanelor, este folosit un TreeSet, care foloseste o clasa creata special pentru aceasta sarcina, care implementeaza interfata "Comparator"
+* Mostenirea este utilizata pentru ierarhiile create de clasele abstracte "Vehicul" si "User"
+* Clasa statica "AppService" implementeaza toate operatiunile aplicatiei, prin metode statice
+* Meniul text-based (sper ca in viitor GUI) este implementat in clasa Main
+* Metodele de adaugare se folosesc, in mare, de o rigurozitate corespunzatoare (verificare REGEX a campurilor introduse, exception handling)
