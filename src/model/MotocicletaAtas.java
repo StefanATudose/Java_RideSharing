@@ -8,19 +8,6 @@ public class MotocicletaAtas extends Vehicul{
         return pretPerKm;
     }
 
-    public static void setPretPerKm(double pretPerKm) {
-        MotocicletaAtas.pretPerKm = pretPerKm;
-    }
-
-    public boolean isVestaBikerInclusa() {
-        return vestaBikerInclusa;
-    }
-
-    public void setVestaBikerInclusa(boolean vestaBikerInclusa) {
-        this.vestaBikerInclusa = vestaBikerInclusa;
-    }
-
-    public MotocicletaAtas(){}
     public MotocicletaAtas(String nume, String inmatriculare, String culoare, Conducator posesor, boolean vestaBikerInclusa){
         super(nume, inmatriculare, culoare, posesor);
         this.vestaBikerInclusa = vestaBikerInclusa;

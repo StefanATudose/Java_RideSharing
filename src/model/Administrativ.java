@@ -21,9 +21,6 @@ public class Administrativ {
         return listaCurse;
     }
 
-    public void setListaCurse(ArrayList<Cursa> listaCurse) {
-        this.listaCurse = listaCurse;
-    }
 
     public static double getCastig() {
         return castig;
@@ -37,31 +34,19 @@ public class Administrativ {
         return listaVehicule;
     }
 
-    public void setListaVehicule(ArrayList<Vehicul> listaVehicule) {
-        this.listaVehicule = listaVehicule;
-    }
 
     public TreeSet<Cupon> getListaCupoane() {
         return listaCupoane;
     }
 
-    public void setListaCupoane(TreeSet<Cupon> listaCupoane) {
-        this.listaCupoane = listaCupoane;
-    }
 
     public ArrayList<Conducator> getListaConducatori() {
         return listaConducatori;
     }
 
-    public void setListaConducatori(ArrayList<Conducator> listaConducator) {
-        this.listaConducatori = listaConducator;
-    }
 
     public ArrayList<Calator> getListaCalatori() {
         return listaCalatori;
     }
 
-    public void setListaCalatori(ArrayList<Calator> listaCalatori) {
-        this.listaCalatori = listaCalatori;
-    }
 }

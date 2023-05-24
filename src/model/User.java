@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 public abstract class User {
+    private int userId;
     private String nume;
     private int rating;
     private Calendar dataInregistrare;
@@ -11,6 +12,10 @@ public abstract class User {
 
     public String getNume() {
         return nume;
+    }
+
+    public int getUserId() {
+        return userId;
     }
 
     public void setNume(String nume) {
@@ -37,12 +42,12 @@ public abstract class User {
         return curse;
     }
 
-    public void setCurse(ArrayList<Cursa> curse) {
-        this.curse = curse;
+    public User(int id, String nume, int rating, Calendar dataInregistrare){
+        this.userId = id;
+        this.nume = nume;
+        this.rating = rating;
+        this.dataInregistrare = dataInregistrare;
     }
-
-    public User(){};
-
     public User(String nume, int rating, Calendar dataInregistrare){
         this.nume = nume;
         this.rating = rating;

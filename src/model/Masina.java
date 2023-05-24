@@ -9,27 +9,6 @@ public class Masina extends Vehicul{
         return pretPerKm;
     }
 
-    public static void setPretPerKm(double pretPerKm) {
-        Masina.pretPerKm = pretPerKm;
-    }
-
-    public boolean isDecapotabila() {
-        return decapotabila;
-    }
-
-    public void setDecapotabila(boolean decapotabila) {
-        this.decapotabila = decapotabila;
-    }
-
-    public boolean isCanDrift() {
-        return canDrift;
-    }
-
-    public void setCanDrift(boolean canDrift) {
-        this.canDrift = canDrift;
-    }
-
-    public Masina(){}
     public Masina(String nume, String inmatriculare, String culoare, Conducator posesor, boolean decapotabila, boolean canDrift){
         super(nume, inmatriculare, culoare, posesor);
         this.decapotabila = decapotabila;

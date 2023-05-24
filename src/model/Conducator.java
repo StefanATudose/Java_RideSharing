@@ -14,9 +14,6 @@ public class Conducator extends User {
         return ownVehicles;
     }
 
-    public void setOwnVehicles(ArrayList<Vehicul>  ownVehicles) {
-        this.ownVehicles = ownVehicles;
-    }
 
     public double getCastigTotal() {
         return castigTotal;
@@ -34,15 +31,14 @@ public class Conducator extends User {
         this.nrBonusuriAcordate = nrBonusuriAcordate;
     }
 
-    public Conducator (){}
 
     public Conducator(String nume, int rating, Calendar dataInregistrare){
         super(nume, rating, dataInregistrare);
     }
-    public Conducator(String nume, int rating, Calendar dataInregistrare, ArrayList<Vehicul> ownVehicles){
+    public Conducator(int id, String nume, int rating, Calendar dataInregistrare){
         super(nume, rating, dataInregistrare);
-        this.ownVehicles = ownVehicles;
     }
+
 
     public String toString(){
         return this.getNume() + ", " + this.getRating() + "/5, "+

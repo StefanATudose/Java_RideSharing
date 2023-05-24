@@ -1,9 +1,7 @@
 package model;
 
 import service.AppService;
-
 import java.util.Calendar;
-import java.util.Date;
 
 public class Cursa {
     private boolean taxata = false;
@@ -27,24 +25,9 @@ public class Cursa {
         return punctPlecare;
     }
 
-    public void setPunctPlecare(String punctPlecare) {
-        this.punctPlecare = punctPlecare;
-    }
 
     public String getDestinatie() {
         return destinatie;
-    }
-
-    public void setDestinatie(String destinatie) {
-        this.destinatie = destinatie;
-    }
-
-    public Calendar getData() {
-        return data;
-    }
-
-    public void setData(Calendar data) {
-        this.data = data;
     }
 
     public Conducator getConducator() {
@@ -55,31 +38,9 @@ public class Cursa {
         this.conducator = conducator;
     }
 
-    public Calator getCalator() {
-        return calator;
-    }
-
-    public void setCalator(Calator calator) {
-        this.calator = calator;
-    }
-
-    public Vehicul getVehicul() {
-        return vehicul;
-    }
-
-    public void setVehicul(Vehicul vehicul) {
-        this.vehicul = vehicul;
-    }
-
     public double getPret() {
         return pret;
     }
-
-    public void setPret(double pret) {
-        this.pret = pret;
-    }
-
-    public Cursa(){}
 
     public Cursa(Calendar data, Conducator conducator, Calator calator, Vehicul vehicul, double pret, String punctPlecare, String destinatie){
         this.data = data;
