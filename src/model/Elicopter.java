@@ -8,19 +8,6 @@ public class Elicopter extends Vehicul{
         return pretPerKm;
     }
 
-    public static void setPretPerKm(double pretPerKm) {
-        Elicopter.pretPerKm = pretPerKm;
-    }
-
-    public int getAltitudineMax() {
-        return altitudineMax;
-    }
-
-    public void setAltitudineMax(int altitudineMax) {
-        this.altitudineMax = altitudineMax;
-    }
-
-    public Elicopter(){}
     public Elicopter(String nume, String inmatriculare, String culoare, Conducator posesor, int altitudineMax){
         super(nume, inmatriculare, culoare, posesor);
         this.altitudineMax = altitudineMax;

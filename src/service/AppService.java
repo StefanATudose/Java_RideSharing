@@ -1,18 +1,25 @@
 package service;
 
 import model.*;
-
-import javax.sound.midi.Soundbank;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
+
+import static resources.Strings.coduriJudete;
 
 public class AppService {
     static Scanner sin = new Scanner(System.in);
 
     public static Calendar chooseData(){
-        System.out.print("Data inregistrare (DD/MM/YYYY): ");
+        System.out.print("Data (DD/MM/YYYY): ");
         String strData = sin.nextLine();
+        return stringToData(strData);
+    }
+    public static Calendar stringToData(String strData){
         Calendar data;
         String[] args;
+        if(strData.equals(""))
+            return null;
         int zi, luna, an;
         try{
             args = strData.split("/");
@@ -28,7 +35,8 @@ public class AppService {
         }
         return data;
     }
-    public static void addUser(Administrativ admin){
+
+    public static void addUser(Administrativ admin, DatabaseService db){
 
         System.out.print("Ce fel de user doriti sa adaugati?(1 pentru conducator si 2 pentru calator) ");
         int optiune = Integer.parseInt(sin.nextLine());
@@ -55,12 +63,24 @@ public class AppService {
             return;
 
         if (optiune == 1){
-            admin.getListaConducatori().add(new Conducator(nume, rating, data));
+            try{
+                db.createConducator(nume, rating, data);
+            }
+            catch (SQLException e){
+                System.out.println("Adaugarea conducatorului la BD esuata.");
+            }
+
+
         }
         else {
-            admin.getListaCalatori().add(new Calator(nume, rating, data));
+            try{
+                db.createCalator(nume, rating, data);
+            }
+            catch (SQLException e){
+                System.out.println("Adaugarea calatorului la BD esuata.");
+            }
+
         }
-        System.out.println("User adaugat cu succes!");
     }
 
     public static String printData(Calendar data){
@@ -117,6 +137,36 @@ public class AppService {
         return admin.getListaVehicule().get(indexVehicul-1);
     }
 
+    public static Integer chooseCard(Administrativ model, DatabaseService db) throws SQLException {
+        System.out.println("Alegeti numarul unui card:");
+        db.readCard();
+        Integer rez = null;
+        try {
+            rez = sin.nextInt();
+            sin.nextLine();
+        }
+        catch (NumberFormatException e){
+            System.out.println("Nu ati introdus un numar");
+            return null;
+        }
+        return rez;
+    }
+
+    public static Integer chooseCupon(Administrativ model, DatabaseService db) throws SQLException {
+        System.out.println("Alegeti numarul unui cupon:");
+        db.readCupon();
+        Integer rez = null;
+        try {
+            rez = sin.nextInt();
+            sin.nextLine();
+        }
+        catch (NumberFormatException e){
+            System.out.println("Nu ati introdus un numar");
+            return null;
+        }
+        return rez;
+    }
+
     public static void addVehicul(Administrativ admin){
         System.out.println("Toate campurile sunt obligatorii.\nCe tip de vehicul doriti sa introduceti (alegeti numarul)\n1 - Masina" +
                 "\n2 - Trasura\n3 - Elicopter\n4 - Motocicleta cu atas");
@@ -129,7 +179,7 @@ public class AppService {
         System.out.print("Nume: ");
         String nume = sin.nextLine();
 
-        ArrayList <String> coduriJudete = new ArrayList<String>(Arrays.asList("AB, AG, AR, BC, BH, BN, BR, BT, BV, BZ, CJ, CL, CS, CT, CV, DB, DJ, GJ, GL, GR, HD, HR, IF, IL, IS, MH, MM, MS, NT, OT, PH, SB, SJ, SM, SV, TL, TM, TR, VL, VN, VS, B".split(", ")));
+
         System.out.print("Numar de inmatriculare (JJ NN LLL)/(B NNN LLL)/(B NN LLL): ");
         String inputInmatr = sin.nextLine();
         if (inputInmatr.matches("B [1-9][0-9]{1,2} [A-Z]{3}") || inputInmatr.matches("[A-Z]{2} [1-9][0-9] [A-Z]{3}")){
@@ -244,7 +294,7 @@ public class AppService {
         System.out.println("Vehicul adaugat cu succes!");
     }
 
-    public static void addCard(Administrativ admin){
+    public static void addCard(Administrativ admin, DatabaseService db){
         System.out.print("Toate campurile sunt obligatorii\nSold: ");
         int sold;
         try{
@@ -265,19 +315,29 @@ public class AppService {
         Calator posesor = chooseCalator(admin);
         if (posesor == null)
             return;
+
+
+        try{
+            db.createCard(numar, sold, posesor.getUserId());
+        }
+        catch (SQLException e){
+            System.out.println("Adaugare esuata la baza de date");
+            return;
+        }
+
         CardPlata cardNou = new CardPlata(numar, sold, posesor);
         posesor.getCarduri().add(cardNou);
         System.out.println("Card adaugat cu succes!");
     }
 
-    public static void addTipCupon(Administrativ admin){
-        boolean procentual;
+    public static void addTipCupon(Administrativ admin, DatabaseService db){
+        int procentual;
         System.out.print("Este de tip procentual sau absolut?(procentual/absolut) ");
         String raspModerna = sin.nextLine();
         if (raspModerna.equals("procentual"))
-            procentual = true;
+            procentual = 1;
         else if(raspModerna.equals("absolut"))
-            procentual = false;
+            procentual = 0;
         else{
             System.out.println("Adaugare esuata: raspuns invalid");
             return;
@@ -298,9 +358,17 @@ public class AppService {
         if (data == null)
             return;
 
+        try{
+            db.createCupon(procentual, valoare, data);
+        }
+        catch (SQLException e){
+            System.out.println("Adaugare esuata la baza de date");
+            return;
+        }
+
         Cupon cupon = new Cupon(procentual, valoare, data);
         admin.getListaCupoane().add(cupon);
-        System.out.println("Tip cupon adaugat cu succes!");
+
     }
 
     public static void addCursa(Administrativ admin){
@@ -332,7 +400,8 @@ public class AppService {
         conducator.getCurse().add(newCursa);
     }
 
-    public static void showUseri(Administrativ admin){
+    public static void showUseri(Administrativ admin, DatabaseService db){
+        /* version 1 with administration item list, use in case database fails
         System.out.println("Calatori:");
         for (Calator calator : admin.getListaCalatori()){
             System.out.println(calator.toString());
@@ -340,7 +409,15 @@ public class AppService {
         System.out.println("\nConducatori: ");
         for (Conducator conducator : admin.getListaConducatori()){
             System.out.println(conducator.toString());
+        }*/
+        try{
+            db.readConducator();
+            db.readCalator();
         }
+        catch (SQLException e){
+            System.out.println("Afisare useri esuata");
+        }
+
     }
 
     public static void showVehicule(Administrativ admin){
@@ -355,22 +432,34 @@ public class AppService {
         }
     }
 
-    public static void showCarduri (Administrativ admin){
-        for (Calator calator : admin.getListaCalatori()){
-            for (CardPlata card : calator.getCarduri()){
-                System.out.println(card.toString());
-            }
+    public static void showCarduri (Administrativ admin, DatabaseService db){
+        try{
+            db.readCard();
+        }
+        catch (SQLException e){
+            System.out.println("Afisare carduri esuata din cauza BD");
+            System.out.println(e.getMessage());
+            System.out.println(e.getSQLState());
         }
     }
 
-    public static void showCupoane(Administrativ admin){
-        for (Cupon cupon : admin.getListaCupoane()){
-            System.out.println(cupon.toString());
+    public static void showCupoane(Administrativ admin, DatabaseService db){
+        try{
+            db.readCupon();
+        }
+        catch (SQLException e){
+            System.out.println("Afisare cupoane esuata din cauza BD");
+            System.out.println(e.getMessage());
+            System.out.println(e.getSQLState());
         }
     }
 
     public static void afisStatistici (Administrativ admin){
         System.out.println("Statistici sumare: ");
+
+        System.out.println();
+        System.out.println("Profitul generat de aplicatie: " + Administrativ.getCastig());
+        System.out.println();
         System.out.println("Conducatorul cu cele mai multe curse efectuate: ");
         int maxim = -1;
         Conducator ales = null;
@@ -397,13 +486,14 @@ public class AppService {
             }
         }
         if (calAles == null){
-            System.out.println("Operatiunea nu a putut fi efectuata deoarece niciun calator nu a primit cupoane. Acordati intai cupoane pentru a efectua operatiunea!");
+            System.out.println("Statisticile de cupoane nu au putut fi generate deoarece niciun calator nu a primit cupoane. Acordati intai cupoane pentru a efectua operatiunea!");
+            return;
         }
         System.out.println(calAles.toString());
         System.out.println("Are o valoare acumulata a cupoanelor, si procentuala si absoluta, de " + maxim + " unitati.");
     }
 
-    public static void acordaCupoane(Administrativ admin){
+    public static void acordaCupoane(Administrativ admin, DatabaseService db){
         Random rnd = new Random();
         if (admin.getListaCupoane().size() < 1){
             System.out.println("Operatiune esuata: Nu exista niciun tip de cupon in sistem!");
@@ -416,11 +506,20 @@ public class AppService {
                 for (Cupon cupon : admin.getListaCupoane()){
                     if (--randIndexCupon < 0) {
                         admin.getListaCalatori().get(i).getCupoane().add(cupon);
+                        try {
+                            db.adaugareCuponLaCalatorInDb(cupon.getCuponId(), admin.getListaCalatori().get(i).getUserId());
+                        }
+                        catch (SQLException e){
+                            System.out.println("Acordarea cupoanelor in BD esuata");
+                            System.out.println(e.getMessage());
+                            System.out.println(e.getSQLState());
+                        }
                         break;
                     }
                 }
             }
         }
+
         System.out.println("Cupoane acordate cu succes!");
     }
 
@@ -484,8 +583,285 @@ public class AppService {
         System.out.println("Taxare efectuata cu succes");
     }
 
-    public static void popularePentruTestare(Administrativ admin){
+    public static void editUser(Administrativ admin, DatabaseService db){
+        User ales = null;
+        System.out.println("Doriti sa editati un <calator> sau un <conducator>?");
+        String rez = sin.nextLine();
+        if (rez.equals("")){
+            System.out.println("Alegere invalida, editare esuata");
+        }
+        else if (rez.equals("calator"))
+            ales = chooseCalator(admin);
+        else if(rez.equals("conducator"))
+            ales = chooseConducator(admin);
+        else
+            System.out.println("Alegere invalida, editare esuata");
+        
+        if(ales == null){
+            System.out.println("Utilizator nevalid, editare esuata");
+            return;
+        }
+            
+        
+        System.out.println("Campurile sunt optionale, dar macar un camp trebuie completat");
+        System.out.print("Nume: ");
+        String nume = sin.nextLine();
+        if (nume.equals(""))
+            nume = null;
+
+        System.out.print("Rating (1-5): ");
+        String strRating = sin.nextLine();
+        Integer rating;
+        if (strRating.equals(""))
+            rating = null;
+        else{
+            try{
+                rating = Integer.parseInt(strRating);
+            }
+            catch (NumberFormatException eroare){
+                System.out.println("Adaugare esuata.: nu ati scris un numar.");
+                return;
+            }
+        }
+
+
+        Calendar data = chooseData();
+        if (data == null && rating == null && nume == null){
+            System.out.println("Editare esuata; macar un camp trebuie modificat");
+            return;
+        }
+        try {
+            db.updateUser(ales.getUserId(), nume, rating, data);
+        }
+        catch (SQLException e) {
+            System.out.println("Editare esuata din cauza bazei de date");
+            System.out.println(e.getMessage());
+            System.out.println(e.getSQLState());
+            return;
+        }
+    }
+
+    public static void editCard(Administrativ admin, DatabaseService db){
+        CardPlata ales = null;
+        Integer idAles;
+        try{
+            idAles = chooseCard(admin, db);
+        }
+        catch (SQLException e){
+            System.out.println("Eroare BD");
+            return;
+        }
+        if (idAles == null)
+            return;
+
+        System.out.println("Campurile sunt optionale, dar macar un camp trebuie completat");
+        System.out.print("Numar card: ");
+        String numar = sin.nextLine();
+        if (numar.equals(""))
+            numar = null;
+
+        System.out.print("Sold: ");
+        String soldStr = sin.nextLine();
+        Integer sold;
+        if (soldStr.equals(""))
+            sold = null;
+        else{
+            try{
+                sold = Integer.parseInt(soldStr);
+            }
+            catch (NumberFormatException eroare){
+                System.out.println("Adaugare esuata.: nu ati scris un numar.");
+                return;
+            }
+        }
+
+
+        Calator aless = chooseCalator(admin);
+        if (numar == null && sold == null && aless == null){
+            System.out.println("Editare esuata; macar un camp trebuie modificat");
+            return;
+        }
+        try {
+            db.updateCard(idAles, numar, sold, aless.getUserId());
+        }
+        catch (SQLException e) {
+            System.out.println("Editare esuata din cauza bazei de date");
+            return;
+        }
+    }
+
+    public static void editCupon(Administrativ admin, DatabaseService db){
+        Cupon ales = null;
+        Integer idAles;
+        try{
+            idAles = chooseCupon(admin, db);
+
+        }
+        catch (SQLException e){
+            System.out.println("Eroare BD");
+            return;
+        }
+        if (idAles == null)
+            return;
+
+        System.out.println("Campurile sunt optionale, dar macar un camp trebuie completat");
+        System.out.println("<procentual> sau <absolut>: ");
+        String numar = sin.nextLine();
+        Integer procentual;
+        if (numar.equals(""))
+            procentual = null;
+        else if(numar.equals("procentual")){
+            procentual = 1;
+        }
+        else if(numar.equals("absolut")){
+            procentual = 0;
+        }
+        else {
+            System.out.println("Varianta invalida, editare esuata");
+            return;
+        }
+
+        System.out.print("Valoare: ");
+        String valStr = sin.nextLine();
+        Integer val;
+        if (valStr.equals(""))
+            val = null;
+        else{
+            try{
+                val = Integer.parseInt(valStr);
+            }
+            catch (NumberFormatException eroare){
+                System.out.println("Adaugare esuata.: nu ati scris un numar.");
+                return;
+            }
+        }
+
+
+        Calendar data = chooseData();
+        if (procentual == null && val == null && data == null){
+            System.out.println("Editare esuata; macar un camp trebuie modificat");
+            return;
+        }
+        try {
+            db.updateCupon(idAles, procentual, val, data);
+        }
+        catch (SQLException e) {
+            System.out.println("Editare esuata din cauza bazei de date");
+            System.out.println(e.getMessage());
+            System.out.println(e.getSQLState());
+            return;
+        }
+    }
+
+    public static void deleteUser(Administrativ admin, DatabaseService db){
+        System.out.println("Doriti sa stergeti <conducator> sau <calator>: ");
+        String rez = sin.nextLine();
+        if (rez == null){
+            System.out.println("Alegere nevalida, stergere imposibila");
+        }
+        else if(rez.equals("calator")){
+            Calator ales = chooseCalator(admin);
+            try{
+                db.deleteUser(ales.getUserId());
+            }
+            catch (SQLException e){
+                System.out.println("Eroare bd, abort");
+                return;
+            }
+
+        }
+        else if(rez.equals("conducator")){
+            Conducator ales = chooseConducator(admin);
+            try{
+                db.deleteUser(ales.getUserId());
+            }
+            catch (SQLException e){
+                System.out.println("Eroare bd, abort");
+                return;
+            }
+        }
+        else{
+            System.out.println("alegere nevalida, stergere imposibila");
+            return;
+        }
+    }
+
+    public static void deleteCard(Administrativ admin, DatabaseService bd){
+        try{
+            Integer ales = chooseCard(admin, bd);
+            bd.deleteCard(ales);
+        }
+        catch (SQLException e){
+            System.out.println("Eroare BD, abort");
+        }
+    }
+
+    public static void deleteCupon(Administrativ admin, DatabaseService bd){
+        try{
+            Integer ales = chooseCupon(admin, bd);
+            bd.deleteCupon(ales);
+        }
+        catch (SQLException e){
+            System.out.println("Eroare BD, abort");
+        }
+    }
+
+    public static void popularePentruTestare(Administrativ admin, DatabaseService db){
         Calendar timp = Calendar.getInstance();
+        try{
+            if (!db.checkCalatorInDB(db)){
+                db.createCalator("Ion Pop", 4, timp);
+                db.createCalator("Alex Ver", 2, timp);
+                db.createCalator("Maria Andu", 3, timp);
+                db.createCalator("Carmen Carol", 1, timp);
+                db.createCalator("Mihai Stefan", 5, timp);
+            }
+
+            if(!db.checkConducatorInDB(db))
+            {
+                db.createConducator("Vasile Grigorescu", 2, timp);
+                db.createConducator("Alexandru Madon", 3, timp);
+                db.createConducator("Stefan Ghiorghidiu", 3, timp);
+                db.createConducator("Ion Glanetasu", 1, timp);
+                db.createConducator("Maria Remarque", 4, timp);
+            }
+
+            if (!db.checkCuponInDB(db))
+            {
+                db.createCupon(1, 10, timp);
+                db.createCupon(0, 5, timp);
+                db.createCupon(1, 2, timp);
+                db.createCupon(1, 15, timp);
+                db.createCupon(0, 25, timp);
+            }
+
+            if (!db.checkCardInDB(db))
+            {
+                db.createCard("1234567890123456", 123, 0);
+                db.createCard("1234567890123356", 432, 0);
+                db.createCard("1234567890163456", 12, 0);
+                db.createCard("1234567899123456", 53, 1);
+                db.createCard("1234567190123456", 1233, 1);
+                db.createCard("1234587890123456", 132, 1);
+                db.createCard("1234567890123456", 125, 2);
+                db.createCard("1834567890123456", 234, 2);
+                db.createCard("1134567890123456", 22, 2);
+                db.createCard("9234567890123456", 64, 3);
+                db.createCard("1734567890123456", 234, 3);
+                db.createCard("1234567840123456", 745, 3);
+                db.createCard("1234567835123456", 234, 4);
+                db.createCard("123456712123456", 1236, 4);
+                db.createCard("1234567690123456", 433, 4);
+            }
+        }
+        catch (SQLException e){
+            System.out.println("Adaugare esuata la DB a datelor de test");
+            System.out.println(e.getSQLState());
+            System.out.println(e.getMessage());
+            return;
+        }
+
+
         CardPlata card1 = new CardPlata("1234567890123456", 123);
         CardPlata card2 = new CardPlata("1234567890123356", 432);
         CardPlata card3 = new CardPlata("1234567890163456", 12);
@@ -552,11 +928,37 @@ public class AppService {
         admin.getListaCalatori().add(cal4);
         admin.getListaCalatori().add(cal5);
 
+        try{
+            ResultSet resultSet = db.getStmt().executeQuery("SELECT * FROM Calator, User where Calator.userId = User.userId and Calator.userId > 4");
+
+            while(resultSet.next()){
+                admin.getListaCalatori().add(new Calator(resultSet.getInt("userId"), resultSet.getString("nume"),
+                        resultSet.getInt("rating"), AppService.stringToData(resultSet.getString("dataInregistrare"))));
+            }
+        }
+        catch (SQLException e){
+            System.out.println("Adaugarea calatorilor din baza de date in aplicatie esuata.");
+            System.out.println(e.getMessage());
+            System.out.println(e.getSQLState());
+            return;
+        }
         Conducator cond1= new Conducator("Vasile Grigorescu", 2, timp);
         Conducator cond2= new Conducator("Alexandru Madon", 3, timp);
         Conducator cond3= new Conducator("Stefan Ghiorghidiu", 3, timp);
         Conducator cond4= new Conducator("Ion Glanetasu", 1, timp);
         Conducator cond5= new Conducator("Maria Remarque", 4, timp);
+        try{
+            ResultSet resultSet = db.getStmt().executeQuery("SELECT * FROM Conducator, User where Conducator.userId = User.userId and Conducator.userId > 9");
+            while(resultSet.next()){
+                admin.getListaConducatori().add(new Conducator(resultSet.getInt("userId"), resultSet.getString("nume"),
+                        resultSet.getInt("rating"), AppService.stringToData(resultSet.getString("dataInregistrare"))));
+            }
+        }
+        catch (SQLException e){
+            System.out.println("Adaugarea conducatorilor din baza de date in aplicatie esuata.");
+            return;
+        }
+
 
         Vehicul veh1 = new Elicopter("JumpJet", "IS 21 AEU", "verde", cond1, 21314);
         Vehicul veh2 = new Masina("BMW", "IS 31 BAE", "negru", cond1, true, false);
@@ -650,11 +1052,11 @@ public class AppService {
         admin.getListaCurse().add(c9);
         admin.getListaCurse().add(c10);
 
-        Cupon cup1 = new Cupon(true, 10, timp);
-        Cupon cup2 = new Cupon(false, 5, timp);
-        Cupon cup3 = new Cupon(true, 2, timp);
-        Cupon cup4 = new Cupon(true, 15, timp);
-        Cupon cup5 = new Cupon(false, 25, timp);
+        Cupon cup1 = new Cupon(1, 10, timp);
+        Cupon cup2 = new Cupon(0, 5, timp);
+        Cupon cup3 = new Cupon(1, 2, timp);
+        Cupon cup4 = new Cupon(1, 15, timp);
+        Cupon cup5 = new Cupon(0, 25, timp);
 
         admin.getListaCupoane().add(cup1);
         admin.getListaCupoane().add(cup2);

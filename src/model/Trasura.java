@@ -9,27 +9,9 @@ public class Trasura extends Vehicul{
         return pretPerKm;
     }
 
-    public static void setPretPerKm(double pretPerKm) {
-        Trasura.pretPerKm = pretPerKm;
-    }
-
     public int getNrCai() {
         return nrCai;
     }
-
-    public void setNrCai(int nrCai) {
-        this.nrCai = nrCai;
-    }
-
-    public boolean isModerna() {
-        return moderna;
-    }
-
-    public void setModerna(boolean moderna) {
-        this.moderna = moderna;
-    }
-
-    public Trasura(){}
 
     public Trasura(String nume, String inmatriculare, String culoare, Conducator posesor, int nrCai, boolean moderna){
         super(nume, inmatriculare, culoare, posesor);

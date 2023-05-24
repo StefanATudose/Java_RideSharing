@@ -1,28 +1,37 @@
 package model;
 
 import service.AppService;
-
-import java.io.ObjectStreamException;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.Objects;
 
 //(reducere)
 public class Cupon {
 
+    private int cuponId;
 
     //false pentru absolut, true pentru procentual
-    private boolean procentual;
+    private int procentual;
 
     //suma in lei daca absolut, procentul daca procentual
     private int valoare;
     private Calendar dataExpirare;
 
-    public boolean isProcentual() {
+    public Cupon(int id, int procentual, int valoare, Calendar dataExpirare) {
+        cuponId = id;
+        this.procentual = procentual;
+        this.valoare = valoare;
+        this.dataExpirare = dataExpirare;
+    }
+
+    public int getCuponId() {
+        return cuponId;
+    }
+
+    public int isProcentual() {
         return procentual;
     }
 
-    public void setProcentual(boolean procentual) {
+    public void setProcentual(int procentual) {
         this.procentual = procentual;
     }
 
@@ -43,14 +52,14 @@ public class Cupon {
     }
 
     public Cupon(){}
-    public Cupon(boolean procent, int val, Calendar dataExpirare){
+    public Cupon(int procent, int val, Calendar dataExpirare){
         this.procentual = procent;
         this.valoare = val;
         this.dataExpirare = dataExpirare;
     }
 
     public String toString(){
-        return "Cupon valabil pana in data de " + AppService.printData(dataExpirare) + ", " + ((procentual) ?
+        return "Cupon valabil pana in data de " + AppService.printData(dataExpirare) + ", " + ((procentual == 1) ?
         "care reduce pretul cursei cu un procent de " + valoare + " la suta." : "care reduce pretul cursei cu " + valoare + " ron.");
     }
 

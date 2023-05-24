@@ -24,19 +24,14 @@ public class Calator extends User{
         this.cupoane = cupoane;
     }
 
-    public Calator(){}
-    public Calator(String nume, int rating, Calendar dataInregistrare){
-        super(nume, rating, dataInregistrare);
+    public Calator(int id, String nume, int rating, Calendar dataInregistrare){
+        super(id, nume, rating, dataInregistrare);
     }
     public Calator(String nume, int rating, Calendar dataInregistrare, ArrayList <CardPlata> carduri){
         super(nume, rating, dataInregistrare);
         this.carduri = carduri;
     }
-    public Calator(String nume, int rating, Calendar dataInregistrare, ArrayList <CardPlata> carduri, ArrayList<Cupon> cupoane){
-        super(nume, rating, dataInregistrare);
-        this.carduri = carduri;
-        this.cupoane = cupoane;
-    }
+
 
     public String toString(){
         return this.getNume() + ", " + this.getRating() + "/5, "+
